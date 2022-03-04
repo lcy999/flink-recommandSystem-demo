@@ -12,7 +12,8 @@ public class MysqlClient {
     private static Statement stmt;
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
+//            Class.forName("com.mysql.cj.jdbc.Driver");
+            Class.forName("com.mysql.jdbc.Driver");
             Connection conn = DriverManager.getConnection(URL, NAME, PASS);
             stmt = conn.createStatement();
         } catch (ClassNotFoundException e) {
@@ -37,6 +38,10 @@ public class MysqlClient {
     public static ResultSet selectUserById(int id) throws SQLException{
         String sql = String.format("select  * from user where user_id = %s",id);
         return stmt.executeQuery(sql);
+    }
+
+    public static int executeSql(String sql) throws SQLException{
+        return stmt.executeUpdate(sql);
     }
 
 	public static void main(String[] args) throws SQLException {

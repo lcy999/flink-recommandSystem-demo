@@ -4,7 +4,7 @@ import com.demo.agg.CountAgg;
 import com.demo.domain.LogEntity;
 import com.demo.domain.TopProductEntity;
 import com.demo.map.TopProductMapFunction;
-import com.demo.sink.TopNRedisSink;
+import com.demo.map.TopProductMapSinkFunction;
 import com.demo.top.TopNHotItems;
 import com.demo.util.Property;
 import com.demo.window.WindowResultFunction;
@@ -17,7 +17,6 @@ import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.streaming.api.functions.timestamps.AscendingTimestampExtractor;
 import org.apache.flink.streaming.api.windowing.time.Time;
 import org.apache.flink.streaming.connectors.kafka.FlinkKafkaConsumer;
-import org.apache.flink.streaming.connectors.redis.RedisSink;
 import org.apache.flink.streaming.connectors.redis.common.config.FlinkJedisPoolConfig;
 import org.apache.flink.util.Collector;
 
@@ -76,7 +75,8 @@ public class TopProductTask {
 
                     }
                 });
-        topProduct.addSink(new RedisSink<>(conf,new TopNRedisSink()));
+//        topProduct.addSink(new RedisSink<>(conf,new TopNRedisSink()));
+        topProduct.map(new TopProductMapSinkFunction());
 
         env.execute("Top N ");
     }
