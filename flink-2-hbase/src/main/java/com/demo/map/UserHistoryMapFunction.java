@@ -1,6 +1,6 @@
 package com.demo.map;
 
-import com.demo.client.HbaseClient;
+import com.demo.client.MysqlClient;
 import com.demo.domain.LogEntity;
 import com.demo.util.LogToEntity;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -20,8 +20,18 @@ public class UserHistoryMapFunction implements MapFunction<String, String> {
     public String map(String s) throws Exception {
         LogEntity log = LogToEntity.getLog(s);
         if (null != log){
-            HbaseClient.increamColumn("u_history",String.valueOf(log.getUserId()),"p",String.valueOf(log.getProductId()));
-            HbaseClient.increamColumn("p_history",String.valueOf(log.getProductId()),"p",String.valueOf(log.getUserId()));
+//            HbaseClient.increamColumn("u_history",String.valueOf(log.getUserId()),"p",String.valueOf(log.getProductId()));
+//            HbaseClient.increamColumn("p_history",String.valueOf(log.getProductId()),"p",String.valueOf(log.getUserId()));
+
+            String sql = String.format("REPLACE INTO h_union_prod VALUES('%s','%s','%s')"
+                    ,log.getUserId(),log.getProductId(),"u_history");
+
+            String sql2 = String.format("REPLACE INTO h_union_prod VALUES('%s','%s','%s')"
+                    ,log.getProductId(),log.getUserId(),"p_history");
+
+            MysqlClient.executeSql(sql);
+            MysqlClient.executeSql(sql2);
+
         }
         return "";
     }

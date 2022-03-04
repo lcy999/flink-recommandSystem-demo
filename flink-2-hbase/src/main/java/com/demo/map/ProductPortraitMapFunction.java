@@ -15,6 +15,7 @@ public class ProductPortraitMapFunction implements MapFunction<String, String> {
     public String map(String s) throws Exception {
         LogEntity log = LogToEntity.getLog(s);
         ResultSet rst = MysqlClient.selectUserById(log.getUserId());
+        rst.last();
         if (rst != null){
             while (rst.next()){
                 String productId = String.valueOf(log.getProductId());
