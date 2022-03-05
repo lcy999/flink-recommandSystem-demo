@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.demo.dao.RTopProductDao">
+    <select id="selectTopN" resultType="java.lang.String">
+        SELECT  productId FROM `r_top_product` WHERE CAST(rankName AS SIGNED) < CAST(#{rankName} AS SIGNED)
+    </select>
+</mapper>

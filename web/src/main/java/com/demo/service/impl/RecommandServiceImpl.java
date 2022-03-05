@@ -2,6 +2,7 @@ package com.demo.service.impl;
 
 import com.demo.client.HbaseClient;
 import com.demo.client.RedisClient;
+import com.demo.dao.RTopProductDao;
 import com.demo.domain.ContactEntity;
 import com.demo.domain.ProductEntity;
 import com.demo.domain.ProductScoreEntity;
@@ -10,7 +11,6 @@ import com.demo.service.ContactService;
 import com.demo.service.ProductService;
 import com.demo.service.RecommandService;
 import com.demo.service.UserScoreService;
-import org.apache.hadoop.hbase.client.coprocessor.BigDecimalColumnInterpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,11 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service("recommandService")
@@ -209,12 +213,17 @@ public class RecommandServiceImpl implements RecommandService {
 		return list.stream().distinct().collect(Collectors.toList());
 	}
 
+	@Autowired
+	RTopProductDao topProductDao;
+
 	/**
 	 * 如果没有达到TOP_SIZE，就从数据库中取补充至TOP_SIZE
 	 * @return
 	 */
 	private List<String> getDefaultTop() {
-		List<String> topList = redisClient.getTopList(TOP_SIZE);
+//		List<String> topList = redisClient.getTopList(TOP_SIZE);
+		List<String> topList = topProductDao.selectTopN(String.valueOf(TOP_SIZE));
+
 		topList = topList.stream().filter(Objects::nonNull).collect(Collectors.toList());
 		if (topList.size() < 10) {
 			// 尽量多的拿产品列表

@@ -1,6 +1,7 @@
 package com.demo.controller;
 
 import com.demo.client.RedisClient;
+import com.demo.dao.RTopProductDao;
 import com.demo.domain.ContactEntity;
 import com.demo.service.ContactService;
 import com.demo.service.ProductService;
@@ -29,6 +30,10 @@ public class BackstageController {
     @Autowired
     ContactService contactService;
 
+    @Autowired
+    RTopProductDao topProductDao;
+
+
     /**
      * 获取后台数据
      * @return json
@@ -36,7 +41,8 @@ public class BackstageController {
     @GetMapping("/index")
     public String getBackStage(Model model){
         // 获取 top 榜单数据
-        List<String> topList = redisClient.getTopList(topSize);
+//        List<String> topList = redisClient.getTopList(topSize);
+        List<String> topList =topProductDao.selectTopN(String.valueOf(topSize));
         //System.out.println(topList);
         List<ContactEntity> topProduct = contactService.selectByIds(topList);
         model.addAttribute("topProduct", topProduct);

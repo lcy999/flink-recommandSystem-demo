@@ -72,7 +72,7 @@ public class UserHistoryWithInterestMapFunction extends RichMapFunction<LogEntit
         if (log != null) {
             for (int i = 0; i < times; i++) {
 
-//                HbaseClient.increamColumn("u_interest", String.valueOf(log.getUserId()), "p", String.valueOf(log.getProductId()));
+                HbaseClient.increamColumn("u_interest", String.valueOf(log.getUserId()), "p", String.valueOf(log.getProductId()));
 
                 String sql = String.format("REPLACE INTO h_union_prod VALUES('%s','%s','%s')"
                         ,log.getUserId(),log.getProductId(),"u_interest");

@@ -1,7 +1,9 @@
 package com.demo.service.impl;
 
-import com.demo.client.HbaseClient;
 import com.demo.client.RedisClient;
+import com.demo.dao.HUserDao;
+import com.demo.dao.RTopProductDao;
+import com.demo.domain.HUserEntity;
 import com.demo.domain.ProductEntity;
 import com.demo.domain.ProductScoreEntity;
 import com.demo.domain.UserScoreEntity;
@@ -23,6 +25,12 @@ public class UserScoreServiceImpl implements UserScoreService {
     private RedisClient redisClient = new RedisClient();
     @Autowired
     ProductService productService;
+    @Autowired
+    RTopProductDao topProductDao;
+
+    @Autowired
+    HUserDao userDao;
+
     /**
      * 计算用户的得分
      * @param userId
@@ -48,7 +56,11 @@ public class UserScoreServiceImpl implements UserScoreService {
     @Override
     public List<ProductScoreEntity> getProductScore(UserScoreEntity userScore) {
         List<ProductScoreEntity> res = new ArrayList<>();
-        List<ProductEntity> topProduct = getTopProductFrom(redisClient.getTopList(10));
+
+        List<String> topProductIds = topProductDao.selectTopN(String.valueOf(10));
+
+//        List<ProductEntity> topProduct = getTopProductFrom(redisClient.getTopList(10));
+        List<ProductEntity> topProduct = getTopProductFrom(topProductIds);
         int i = 0;
         for (ProductEntity entity : topProduct){
             if (null != entity){
@@ -118,7 +130,10 @@ public class UserScoreServiceImpl implements UserScoreService {
 
 
     private int getValue(String userId, String valueName) throws IOException {
-        String value = HbaseClient.getData("user", userId, "style", valueName);
+//        String value = HbaseClient.getData("user", userId, "style", valueName);
+        HUserEntity user = userDao.selectById(userId);
+        String value = user.getStyle();
+
         int res = 0;
         if (null != value){
             res = Integer.valueOf(value);
