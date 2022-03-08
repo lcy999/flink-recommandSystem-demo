@@ -38,7 +38,7 @@ public class ProductPortraitMapFunction implements MapFunction<String, String> {
         boolean next = resultSet.next();
         String value = "1";
         if (next) {
-            value = resultSet.getString(0);
+            value = resultSet.getString("value");
             value = Integer.parseInt(value) + 1 + "";
         }
         String deleteSql = String.format("delete from h_prod where id=%s and %s='%s'", f1, fieldName, f2);

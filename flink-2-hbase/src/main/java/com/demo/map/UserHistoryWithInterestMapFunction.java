@@ -12,6 +12,8 @@ import org.apache.flink.api.common.state.ValueStateDescriptor;
 import org.apache.flink.configuration.Configuration;
 
 import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class UserHistoryWithInterestMapFunction extends RichMapFunction<LogEntity, String> {
 
@@ -72,17 +74,33 @@ public class UserHistoryWithInterestMapFunction extends RichMapFunction<LogEntit
         if (log != null) {
             for (int i = 0; i < times; i++) {
 
-                HbaseClient.increamColumn("u_interest", String.valueOf(log.getUserId()), "p", String.valueOf(log.getProductId()));
+//                HbaseClient.increamColumn("u_interest", String.valueOf(log.getUserId()), "p", String.valueOf(log.getProductId()));
 
-                String sql = String.format("REPLACE INTO h_union_prod VALUES('%s','%s','%s')"
-                        ,log.getUserId(),log.getProductId(),"u_interest");
-                MysqlClient.executeSql(sql);
+                updateData(log.getUserId()+"", log.getProductId()+"", "u_interest");
 
 
             }
 
         }
 
+    }
+
+    private void updateData(String id, String productId, String unionType) throws SQLException {
+        String querySql = String.format("select value from h_union_prod where id='%s' and product='%s' and union_type='%s'"
+                , id, productId, unionType);
+        ResultSet resultSet = MysqlClient.querySql(querySql);
+        boolean next = resultSet.next();
+        String value = "1";
+        if (next) {
+            value = resultSet.getString("value");
+            value = Integer.parseInt(value) + 1 + "";
+        }
+        String deleteSql = String.format("delete from h_union_prod where id='%s' and product='%s' and union_type='%s'"
+                , id, productId, unionType);
+        MysqlClient.executeSql(deleteSql);
+
+        String sql = String.format("insert INTO h_union_prod VALUES('%s','%s','%s','%s')", id, productId, unionType, value);
+        MysqlClient.executeSql(sql);
     }
 
 }

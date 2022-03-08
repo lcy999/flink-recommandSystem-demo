@@ -5,4 +5,10 @@
         select * from h_union_prod
         WHERE id = #{id}
     </select>
+
+    <select id="selectByIdAndType" resultType="com.demo.domain.HUnionProdEntity">
+        select * from h_union_prod
+        WHERE id = #{id} and union_type=#{unionType}
+    </select>
+
 </mapper>

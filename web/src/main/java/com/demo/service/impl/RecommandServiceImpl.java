@@ -2,8 +2,10 @@ package com.demo.service.impl;
 
 import com.demo.client.HbaseClient;
 import com.demo.client.RedisClient;
+import com.demo.dao.HUnionProdDao;
 import com.demo.dao.RTopProductDao;
 import com.demo.domain.ContactEntity;
+import com.demo.domain.HUnionProdEntity;
 import com.demo.domain.ProductEntity;
 import com.demo.domain.ProductScoreEntity;
 import com.demo.dto.ProductDto;
@@ -20,11 +22,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service("recommandService")
@@ -40,6 +38,9 @@ public class RecommandServiceImpl implements RecommandService {
 	ContactService contactService;
 	@Resource
 	private RedisClient redisClient;
+
+	@Autowired
+	private HUnionProdDao unionProdDao;
 
 	private final static int TOP_SIZE = 10;   // 热度榜产品数
 
@@ -61,9 +62,12 @@ public class RecommandServiceImpl implements RecommandService {
 		randProduct.forEach(r -> {
 			try {
 				rst.add(r);
-				List<Map.Entry> ps = HbaseClient.getRow("ps", userId);
+
+				List<HUnionProdEntity> ps = unionProdDao.selectByIdAndType(userId, "ps");
+
+//				List<Map.Entry> ps = HbaseClient.getRow("ps", userId);
 				int end = ps.size() > 3 ? ps.size() : 3;
-				for (int i = 0; i < end; i++) {
+				/*for (int i = 0; i < end; i++) {
 					Map.Entry entry = ps.get(i);
 					ProductEntity p = productService.selectById((String) entry.getKey());
 					ProductScoreEntity pWithScore = new ProductScoreEntity();
@@ -71,8 +75,17 @@ public class RecommandServiceImpl implements RecommandService {
 					pWithScore.setScore(r.getScore());
 					pWithScore.setRank(r.getRank());
 					rst.add(pWithScore);
+				}*/
+				for (HUnionProdEntity item : ps) {
+					ProductEntity p = productService.selectById(item.getProduct());
+					ProductScoreEntity pWithScore = new ProductScoreEntity();
+					pWithScore.setProduct(p);
+					pWithScore.setScore(r.getScore());
+					pWithScore.setRank(r.getRank());
+					rst.add(pWithScore);
 				}
-			} catch (IOException e) {
+
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
 		});
@@ -144,7 +157,16 @@ public class RecommandServiceImpl implements RecommandService {
 			List<Map.Entry> ps = new ArrayList<>();
 			//获取的产品list是已经排好序的,根据得分排序
 			try {
-				ps = HbaseClient.getRow(table, s);
+//				ps = HbaseClient.getRow(table, s);
+				List<HUnionProdEntity> hUnionProdEntities = unionProdDao.selectByIdAndType(s, table);
+				for (HUnionProdEntity item : hUnionProdEntities) {
+					Map<String, String> subItem = new HashMap<>();
+					subItem.put(item.getProduct(), item.getValue());
+
+					ps.add(subItem.entrySet().iterator().next());
+				}
+
+
 				Collections.sort(ps,((o1, o2) -> -(new BigDecimal(o1.getValue().toString()).compareTo(new BigDecimal(o2.getValue().toString())))));
 			} catch (Exception e) {
 				logger.warn("Hbase中没有产品【{}】记录", s);
@@ -225,12 +247,12 @@ public class RecommandServiceImpl implements RecommandService {
 		List<String> topList = topProductDao.selectTopN(String.valueOf(TOP_SIZE));
 
 		topList = topList.stream().filter(Objects::nonNull).collect(Collectors.toList());
-		if (topList.size() < 10) {
+		/*if (topList.size() < 10) {
 			// 尽量多的拿产品列表
 			topList.addAll(productService.selectInitPro(100));
 			topList = topList.stream().distinct().collect(Collectors.toList());
 			logger.info("top: {}", topList);
-		}
+		}*/
 		return topList;
 	}
 
