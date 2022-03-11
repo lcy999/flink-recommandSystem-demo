@@ -23,6 +23,10 @@ public class RecommandController {
 
     @Autowired
     KafkaService kafkaService;
+
+
+
+
     /**
      * 返回推荐页面
      * @param userId
@@ -32,6 +36,8 @@ public class RecommandController {
     @GetMapping("/recommand")
     public String recommandByUserId(@RequestParam("userId") String userId,
                                     Model model) throws IOException {
+
+
 
         // 拿到不同推荐方案的结果
         List<ProductDto> hotList = recommandService.recommandByHotList();
