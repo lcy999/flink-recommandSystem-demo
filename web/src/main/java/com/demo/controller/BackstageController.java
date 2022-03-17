@@ -5,6 +5,7 @@ import com.demo.dao.RTopProductDao;
 import com.demo.domain.ContactEntity;
 import com.demo.service.ContactService;
 import com.demo.service.ProductService;
+import com.demo.util.Constants;
 import com.demo.util.Result;
 import com.demo.util.ResultUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class BackstageController {
 	@Resource
 	private RedisClient redisClient;
 
-    private int topSize = 10;
+    private int topSize = Constants.TOP_SIZE;
 
     @Autowired
     ProductService productService;

@@ -11,4 +11,6 @@ public class Constants {
     public static final String AGE_50 = "50s";
     public static final String AGE_60 = "50s";
 
+    public static final int TOP_SIZE = 10;
+
 }

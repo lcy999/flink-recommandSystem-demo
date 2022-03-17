@@ -2,6 +2,7 @@ package com.demo.top;
 
 import com.demo.domain.RankProductEntity;
 import com.demo.domain.TopProductEntity;
+import com.demo.util.Constants;
 import org.apache.flink.streaming.api.functions.windowing.ProcessAllWindowFunction;
 import org.apache.flink.streaming.api.windowing.windows.TimeWindow;
 import org.apache.flink.util.Collector;
@@ -15,7 +16,7 @@ import java.util.PriorityQueue;
 public class TopNFunction extends
         ProcessAllWindowFunction<TopProductEntity, RankProductEntity,TimeWindow>{
 
-    private int topSize = 10;
+    private int topSize = Constants.TOP_SIZE;
     public TopNFunction(int topSize) {
         this.topSize = topSize;
     }

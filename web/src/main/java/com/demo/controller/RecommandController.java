@@ -38,17 +38,9 @@ public class RecommandController {
                                     Model model) throws IOException {
 
 
+        recommandService.queryModelInfo(userId, model);
 
-        // 拿到不同推荐方案的结果
-        List<ProductDto> hotList = recommandService.recommandByHotList();
-        List<ProductDto> itemCfCoeffList = recommandService.recomandByItemCfCoeff();
-        List<ProductDto> productCoeffList = recommandService.recomandByProductCoeff();
 
-        // 将结果返回给前端
-        model.addAttribute("userId", userId);
-        model.addAttribute("hotList",hotList);
-        model.addAttribute("itemCfCoeffList", itemCfCoeffList);
-        model.addAttribute("productCoeffList", productCoeffList);
 
         return "user";
     }

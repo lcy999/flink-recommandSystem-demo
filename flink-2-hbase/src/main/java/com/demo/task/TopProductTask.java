@@ -1,6 +1,7 @@
 package com.demo.task;
 
 import com.demo.agg.CountAgg;
+import com.demo.client.MysqlClient;
 import com.demo.domain.LogEntity;
 import com.demo.domain.TopProductEntity;
 import com.demo.map.TopProductMapFunction;
@@ -63,6 +64,10 @@ public class TopProductTask {
                 .process(new TopNHotItems(topSize)).flatMap(new FlatMapFunction<List<String>, TopProductEntity>() {
                     @Override
                     public void flatMap(List<String> strings, Collector<TopProductEntity> collector) throws Exception {
+
+                        String delSql = "truncate table r_top_product";
+                        MysqlClient.executeSql(delSql);
+
                         System.out.println("-------------Top N Product------------");
                         for (int i = 0; i < strings.size(); i++) {
                             TopProductEntity top = new TopProductEntity();

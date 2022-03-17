@@ -2,6 +2,7 @@ package com.demo.service;
 
 import com.demo.domain.ProductScoreEntity;
 import com.demo.dto.ProductDto;
+import org.springframework.ui.Model;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,4 +36,7 @@ public interface RecommandService {
      * @return
      */
     List<ProductDto> recomandByProductCoeff() throws IOException;
+
+    Model queryModelInfo(String userId, Model model);
+
 }

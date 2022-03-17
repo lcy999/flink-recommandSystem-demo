@@ -9,14 +9,17 @@ import com.demo.domain.HUnionProdEntity;
 import com.demo.domain.ProductEntity;
 import com.demo.domain.ProductScoreEntity;
 import com.demo.dto.ProductDto;
-import com.demo.service.ContactService;
-import com.demo.service.ProductService;
-import com.demo.service.RecommandService;
-import com.demo.service.UserScoreService;
+import com.demo.enums.AgeStageProduct;
+import com.demo.enums.PopularStageProduct;
+import com.demo.enums.SexStageProduct;
+import com.demo.enums.SpeedOrderStageProduct;
+import com.demo.service.*;
+import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
@@ -41,6 +44,9 @@ public class RecommandServiceImpl implements RecommandService {
 
 	@Autowired
 	private HUnionProdDao unionProdDao;
+
+	@Autowired
+	private HDbService hDbService;
 
 	private final static int TOP_SIZE = 10;   // 热度榜产品数
 
@@ -97,6 +103,9 @@ public class RecommandServiceImpl implements RecommandService {
 		// 获取top榜单
 		List<String> topList = getDefaultTop();
 		int topSize = topList.size();
+		if (topSize == 0) {
+			return new ArrayList<ProductDto>();
+		}
 		// 拿到产品详情表
 		List<ContactEntity> contactEntities = contactService.selectByIds(topList);
 		// 拿到产品基本信息表
@@ -107,6 +116,9 @@ public class RecommandServiceImpl implements RecommandService {
 	@Override
 	public List<ProductDto> recomandByItemCfCoeff() throws IOException {
 		List<String> topList = getDefaultTop();
+		if (topList.size() == 0) {
+			return new ArrayList<ProductDto>();
+		}
 		List<String> px = addRecommandProduct(topList, "px");
 		px = removeDuplicateWithOrder(px);
 		// 拿到产品详情表
@@ -120,6 +132,9 @@ public class RecommandServiceImpl implements RecommandService {
 	@Override
 	public List<ProductDto> recomandByProductCoeff() throws IOException {
 		List<String> topList = getDefaultTop();
+		if (topList.size() == 0) {
+			return new ArrayList<ProductDto>();
+		}
 		List<String> ps = addRecommandProduct(topList, "ps");
 		ps = removeDuplicateWithOrder(ps);
 		// 拿到产品详情表
@@ -256,5 +271,56 @@ public class RecommandServiceImpl implements RecommandService {
 		return topList;
 	}
 
+	private List<String> queryUserImage(String userId) {
+		String ageImage = hDbService.queryUserAgeOrSexImage(userId, true);
+		String sexImage = hDbService.queryUserAgeOrSexImage(userId, false);
+		String polularImage = hDbService.queryUserPolularImage(userId);
+		String speedImage = hDbService.queryUserSpeedImage(userId);
 
+
+		List<String> images = Lists.newArrayList();
+
+		if (ageImage != null) {
+			ageImage = AgeStageProduct.getAgeStageProduct(ageImage).getImageName();
+			images.add(ageImage);
+		}
+		if (sexImage != null) {
+			sexImage = SexStageProduct.getSexStageProduct(sexImage).getImageName();
+			images.add(sexImage);
+		}
+
+		if (polularImage != null) {
+			polularImage = PopularStageProduct.getPopularStageProduct(polularImage).getImageName();
+			images.add(polularImage);
+		}
+
+		if (speedImage != null) {
+			speedImage = SpeedOrderStageProduct.getSpeedOrderStageProduct(speedImage).getImageName();
+			images.add(speedImage);
+		}
+		return images;
+	}
+
+	@Override
+	public Model queryModelInfo(String userId, Model model) {
+		// 拿到不同推荐方案的结果
+		try {
+			List<ProductDto> hotList = recommandByHotList();
+			List<ProductDto> itemCfCoeffList = recomandByItemCfCoeff();
+			List<ProductDto> productCoeffList = recomandByProductCoeff();
+
+			List<String> userImages = queryUserImage(userId);
+			// 将结果返回给前端
+			model.addAttribute("userId", userId);
+			model.addAttribute("hotList",hotList);
+			model.addAttribute("itemCfCoeffList", itemCfCoeffList);
+			model.addAttribute("productCoeffList", productCoeffList);
+			model.addAttribute("userImage", userImages);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+
+		return null;
+	}
 }

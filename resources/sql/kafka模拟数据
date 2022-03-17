@@ -2,6 +2,7 @@
 // 测试数据,通过kafka 发送,通过以为命令发送测试
 //KAFKA_HOME/bin/kafka-console-producer.sh --broker-list ZOOKEEPER_HOST:9092 --topic con
 // 第三列为 以s为单位的时间戳 每间隔5s会计算一次窗口60s数值
+
 1,123,1563799391,2
 1,123,1563799393,2
 1,124,1563799394,2
