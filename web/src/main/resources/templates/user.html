@@ -27,9 +27,8 @@
 <div class="container-fluid">
 
     <div class="row">
-        <div class="col-lg-4"></div>
         <div class="col-lg-4">
-            <div class="panel panel-success">
+            <div class="panel panel-primary">
                 <div class="panel-heading">用户标签</div>
                 <div class="panel-body">
                     <div class="row product-item" th:each="image: ${userImage}">
@@ -39,11 +38,6 @@
 
             </div>
         </div>
-
-        <div class="col-lg-4"></div>
-    </div>
-
-    <div class="row">
         <!--热度榜-->
         <div class="col-lg-4">
             <div class="panel panel-success">
@@ -78,38 +72,35 @@
                 </div>
             </div>
         </div>
-        <!--协同过滤-->
+        <!--用户信息-->
         <div class="col-lg-4">
             <div class="panel panel-info">
-                <div class="panel-heading">协同过滤推荐</div>
+                <div class="panel-heading">用户信息</div>
                 <div class="panel-body">
-                    <div class="row product-item" th:each="pro: ${itemCfCoeffList}">
-                        <div class="col-lg-6">
-                            <img class="product-item-img" th:src="${pro.contact.picUrl}"/>
-                        </div>
-                        <div class="col-lg-6">
-                            <div class="row">
-                                <text><strong>id:</strong></text>
-                                <text th:text="${pro.contact.id}"></text>
-                                <text><strong>brand:</strong></text>
-                                <text th:text="${pro.contact.brandName}"></text>
-                            </div>
-                            <div class="row product-action">
-                                <text th:text="${pro.contact.itemName}"></text>
-                                <a th:onclick="'javascript:sendLog('+${userId}+','+${pro.contact.id}+',1);'"
-                                   href=""><img src="../icon/浏览.png" style="width: 20px;height: 20px;"></a>
-                                <a th:onclick="'javascript:sendLog('+${userId}+','+${pro.contact.id}+',2);'"
-                                   href=""><img src="../icon/收藏.png" style="width: 20px;height: 20px;"></a>
-                                <a th:onclick="'javascript:sendLog('+${userId}+','+${pro.contact.id}+',3);'"
-                                   href=""><img src="../icon/购买.png" style="width: 20px;height: 20px;"></a>
-                            </div>
-                        </div>
+                    <div class="row product-item">
+                        <text><strong>名称:</strong></text>
+                        <text th:text="${userInfo.userName}"></text>
                     </div>
+                    <div class="row product-item">
+                        <text><strong>性别:</strong></text>
+                        <text th:text="${userInfo.sex}"></text>
+                    </div>
+                    <div class="row product-item">
+                        <text><strong>年龄:</strong></text>
+                        <text th:text="${userInfo.age}"></text>
+                    </div>
+                    <div class="row product-item">
+                        <text><strong>年龄:</strong></text>
+                        <text th:text="${userInfo.age}"></text>
+                    </div>
+
+
+
                 </div>
             </div>
         </div>
         <!--产品画像-->
-        <div class="col-lg-4">
+        <!--<div class="col-lg-4">
             <div class="panel panel-primary">
                 <div class="panel-heading">产品画像推荐</div>
                 <div class="panel-body">
@@ -137,7 +128,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div>-->
     </div>
 
 

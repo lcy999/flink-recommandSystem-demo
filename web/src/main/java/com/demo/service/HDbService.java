@@ -1,16 +1,10 @@
 package com.demo.service;
 
-import com.demo.dao.HLogDao;
-import com.demo.dao.HProdDao;
-import com.demo.dao.HUnionProdDao;
-import com.demo.dao.HUserDao;
-import com.demo.dao.RTopProductDao;
+import com.demo.dao.*;
 import com.demo.domain.HProdEntity;
 import com.demo.domain.HUnionProdEntity;
-import com.demo.enums.AgeStageProduct;
-import com.demo.enums.PopularStageProduct;
-import com.demo.enums.SexStageProduct;
-import com.demo.enums.SpeedOrderStageProduct;
+import com.demo.domain.ProductEntity;
+import com.demo.enums.*;
 import com.demo.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,6 +38,36 @@ public class HDbService {
     @Autowired
     private RTopProductDao rTopProductDao;
 
+    @Autowired
+    private ProductDao productDao;
+
+
+
+    public String queryUserCountryImage(String userId){
+        List<HUnionProdEntity> uHistory = hUnionProdDao.selectByIdAndType(userId, "u_history");
+        int innerCount=0;
+        int externalCount=0;
+        for (HUnionProdEntity hUnionProdEntity : uHistory) {
+            String productId = hUnionProdEntity.getProduct();
+            ProductEntity productEntity = productDao.selectById(Integer.parseInt(productId));
+            if (productEntity != null) {
+                if (!productEntity.getCountry().toLowerCase().contains("china")) {
+                    externalCount++;
+                }else{
+                    innerCount++;
+                }
+            }
+        }
+
+        String countryImage = "";
+        if (innerCount >= externalCount) {
+            countryImage = CountryStageProduct.INNER_COUNTRY.name();
+        }else{
+            countryImage = CountryStageProduct.EXTERNAL_COUNTRY.name();
+        }
+
+        return countryImage;
+    }
 
     /**
      * 在用户操作所有商品中，下单每个动作小于100秒的商品占总商品的比率

@@ -3,16 +3,12 @@ package com.demo.service.impl;
 import com.demo.client.HbaseClient;
 import com.demo.client.RedisClient;
 import com.demo.dao.HUnionProdDao;
+import com.demo.dao.HUserDao;
 import com.demo.dao.RTopProductDao;
-import com.demo.domain.ContactEntity;
-import com.demo.domain.HUnionProdEntity;
-import com.demo.domain.ProductEntity;
-import com.demo.domain.ProductScoreEntity;
+import com.demo.dao.UserDao;
+import com.demo.domain.*;
 import com.demo.dto.ProductDto;
-import com.demo.enums.AgeStageProduct;
-import com.demo.enums.PopularStageProduct;
-import com.demo.enums.SexStageProduct;
-import com.demo.enums.SpeedOrderStageProduct;
+import com.demo.enums.*;
 import com.demo.service.*;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
@@ -47,6 +43,12 @@ public class RecommandServiceImpl implements RecommandService {
 
 	@Autowired
 	private HDbService hDbService;
+
+	@Autowired
+	private RTopProductDao topProductDao;
+
+	@Autowired
+	private UserDao userDao;
 
 	private final static int TOP_SIZE = 10;   // 热度榜产品数
 
@@ -250,9 +252,6 @@ public class RecommandServiceImpl implements RecommandService {
 		return list.stream().distinct().collect(Collectors.toList());
 	}
 
-	@Autowired
-	RTopProductDao topProductDao;
-
 	/**
 	 * 如果没有达到TOP_SIZE，就从数据库中取补充至TOP_SIZE
 	 * @return
@@ -276,6 +275,7 @@ public class RecommandServiceImpl implements RecommandService {
 		String sexImage = hDbService.queryUserAgeOrSexImage(userId, false);
 		String polularImage = hDbService.queryUserPolularImage(userId);
 		String speedImage = hDbService.queryUserSpeedImage(userId);
+		String countryImage = hDbService.queryUserCountryImage(userId);
 
 
 		List<String> images = Lists.newArrayList();
@@ -298,6 +298,12 @@ public class RecommandServiceImpl implements RecommandService {
 			speedImage = SpeedOrderStageProduct.getSpeedOrderStageProduct(speedImage).getImageName();
 			images.add(speedImage);
 		}
+
+		if (countryImage != null) {
+			countryImage = CountryStageProduct.getCountryStageProduct(countryImage).getImageName();
+			images.add(countryImage);
+		}
+
 		return images;
 	}
 
@@ -309,11 +315,13 @@ public class RecommandServiceImpl implements RecommandService {
 			List<ProductDto> itemCfCoeffList = recomandByItemCfCoeff();
 			List<ProductDto> productCoeffList = recomandByProductCoeff();
 
+			UserEntity userEntity = userDao.selectById(Integer.parseInt(userId));
+
 			List<String> userImages = queryUserImage(userId);
 			// 将结果返回给前端
 			model.addAttribute("userId", userId);
 			model.addAttribute("hotList",hotList);
-			model.addAttribute("itemCfCoeffList", itemCfCoeffList);
+			model.addAttribute("userInfo", userEntity);
 			model.addAttribute("productCoeffList", productCoeffList);
 			model.addAttribute("userImage", userImages);
 		} catch (IOException e) {
